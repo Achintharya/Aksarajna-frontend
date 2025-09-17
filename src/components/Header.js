@@ -1,8 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Header.css';
 
-function Header({ onAboutClick, onMyArticlesClick, user, onLogout }) {
+function Header({ onAboutClick, onMyArticlesClick, onAdminClick, user, onLogout }) {
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    // Check if user has admin role
+    if (user) {
+      const userMetadata = user.app_metadata || {};
+      const userRole = userMetadata.role || user.user_metadata?.role;
+      setIsAdmin(userRole === 'admin');
+    } else {
+      setIsAdmin(false);
+    }
+  }, [user]);
 
   return (
     <header className="header">
@@ -34,7 +46,19 @@ function Header({ onAboutClick, onMyArticlesClick, user, onLogout }) {
                   <div className="user-info">
                     <p className="user-email-full">{user.email}</p>
                     <p className="user-id">ID: {user.id.slice(0, 8)}...</p>
+                    {isAdmin && <p className="user-role">👑 Admin</p>}
                   </div>
+                  {isAdmin && (
+                    <button 
+                      className="admin-button"
+                      onClick={() => {
+                        onAdminClick();
+                        setShowUserMenu(false);
+                      }}
+                    >
+                      ⚙️ Admin Dashboard
+                    </button>
+                  )}
                   <button 
                     className="logout-button"
                     onClick={() => {

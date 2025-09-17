@@ -2,15 +2,17 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import Header from './components/Header';
 import ArticleGenerator from './components/ArticleGenerator';
-import About from './components/About';
 import MyArticles from './components/MyArticles';
+import About from './components/About';
 import Auth from './components/Auth';
+import AdminDashboard from './components/AdminDashboard';
 import { supabase, getCurrentUser, getAuthToken } from './config/supabaseClient';
 import { Analytics } from '@vercel/analytics/react';
 
 function App() {
   const [showAbout, setShowAbout] = useState(false);
   const [showMyArticles, setShowMyArticles] = useState(false);
+  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -82,6 +84,7 @@ function App() {
       <Header 
         onAboutClick={() => setShowAbout(true)} 
         onMyArticlesClick={() => setShowMyArticles(true)}
+        onAdminClick={() => setShowAdminDashboard(true)}
         user={user}
         onLogout={handleLogout}
       />
@@ -97,6 +100,11 @@ function App() {
       </footer>
       <About isOpen={showAbout} onClose={() => setShowAbout(false)} />
       <MyArticles isOpen={showMyArticles} onClose={() => setShowMyArticles(false)} />
+      <AdminDashboard 
+        isOpen={showAdminDashboard} 
+        onClose={() => setShowAdminDashboard(false)}
+        user={user}
+      />
       <Analytics />
     </div>
   );

@@ -53,10 +53,14 @@ function Auth({ onAuthSuccess }) {
 
   return (
     <div className="auth-overlay">
+      <div className="auth-welcome-message">
+        <h1>Welcome to Akṣarajña</h1>
+        <p>AI-Powered Article Generation System</p>
+      </div>
       <div className="auth-modal">
         <div className="auth-header">
           <h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
-          <p>Welcome to Akṣarajña</p>
+          <p>Access your personalized writing assistant</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
