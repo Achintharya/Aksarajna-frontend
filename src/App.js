@@ -6,6 +6,7 @@ import About from './components/About';
 import MyArticles from './components/MyArticles';
 import Auth from './components/Auth';
 import { supabase, getCurrentUser, getAuthToken } from './config/supabaseClient';
+import { Analytics } from '@vercel/analytics/react';
 
 function App() {
   const [showAbout, setShowAbout] = useState(false);
@@ -96,6 +97,7 @@ function App() {
       </footer>
       <About isOpen={showAbout} onClose={() => setShowAbout(false)} />
       <MyArticles isOpen={showMyArticles} onClose={() => setShowMyArticles(false)} />
+      <Analytics />
     </div>
   );
 }
