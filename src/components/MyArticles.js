@@ -3,6 +3,7 @@ import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import API_BASE_URL from '../config/api';
+import { getAuthToken } from '../config/supabaseClient';
 import SourcesEditor from './SourcesEditor';
 import './MyArticles.css';
 
@@ -16,6 +17,17 @@ function MyArticles({ isOpen, onClose }) {
   const [writingStyleFilename, setWritingStyleFilename] = useState('');
   const [isUploadingStyle, setIsUploadingStyle] = useState(false);
 
+  // Helper function to get auth headers
+  const getAuthHeaders = async () => {
+    try {
+      const token = await getAuthToken();
+      return token ? { Authorization: `Bearer ${token}` } : {};
+    } catch (error) {
+      console.error('Error getting auth token:', error);
+      return {};
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
       fetchArticles();
@@ -26,7 +38,8 @@ function MyArticles({ isOpen, onClose }) {
 
   const fetchArticles = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/articles`);
+      const headers = await getAuthHeaders();
+      const response = await axios.get(`${API_BASE_URL}/api/articles`, { headers });
       setArticles(response.data.articles || []);
     } catch (err) {
       console.error('Error fetching articles:', err);
@@ -35,12 +48,13 @@ function MyArticles({ isOpen, onClose }) {
 
   const fetchSources = async () => {
     try {
+      const headers = await getAuthHeaders();
       // Try sources.md first, then fall back to sources.txt
       let response;
       try {
-        response = await axios.get(`${API_BASE_URL}/api/articles/sources.md`);
+        response = await axios.get(`${API_BASE_URL}/api/articles/sources.md`, { headers });
       } catch {
-        response = await axios.get(`${API_BASE_URL}/api/articles/sources.txt`);
+        response = await axios.get(`${API_BASE_URL}/api/articles/sources.txt`, { headers });
       }
       setSources(response.data);
     } catch (err) {
@@ -50,7 +64,8 @@ function MyArticles({ isOpen, onClose }) {
 
   const handleViewArticle = async (filename) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/articles/${filename}`);
+      const headers = await getAuthHeaders();
+      const response = await axios.get(`${API_BASE_URL}/api/articles/${filename}`, { headers });
       let content = response.data;
       
       // Strip markdown code block wrapper if present
@@ -70,7 +85,8 @@ function MyArticles({ isOpen, onClose }) {
 
   const handleDownloadArticle = async (filename) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/articles/${filename}`);
+      const headers = await getAuthHeaders();
+      const response = await axios.get(`${API_BASE_URL}/api/articles/${filename}`, { headers });
       const blob = new Blob([response.data], { type: 'text/plain' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -96,7 +112,8 @@ function MyArticles({ isOpen, onClose }) {
     }
 
     try {
-      await axios.delete(`${API_BASE_URL}/api/articles/${filename}`);
+      const headers = await getAuthHeaders();
+      await axios.delete(`${API_BASE_URL}/api/articles/${filename}`, { headers });
       // Refresh the articles list after successful deletion
       fetchArticles();
       // Show success message (optional)
@@ -121,7 +138,8 @@ function MyArticles({ isOpen, onClose }) {
 
   const fetchWritingStyle = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/writing-style`);
+      const headers = await getAuthHeaders();
+      const response = await axios.get(`${API_BASE_URL}/api/writing-style`, { headers });
       setWritingStyle(response.data || '');
     } catch (err) {
       console.error('Error fetching writing style:', err);
@@ -151,10 +169,11 @@ function MyArticles({ isOpen, onClose }) {
       const reader = new FileReader();
       reader.onload = async (e) => {
         try {
+          const headers = await getAuthHeaders();
           const content = e.target.result;
           const response = await axios.put(`${API_BASE_URL}/api/writing-style`, {
             content: content
-          });
+          }, { headers });
           
           setWritingStyle(content);
           setWritingStyleFilename(file.name);
@@ -197,7 +216,8 @@ function MyArticles({ isOpen, onClose }) {
     }
 
     try {
-      await axios.delete(`${API_BASE_URL}/api/writing-style`);
+      const headers = await getAuthHeaders();
+      await axios.delete(`${API_BASE_URL}/api/writing-style`, { headers });
       setWritingStyle('');
       setWritingStyleFilename('');
       alert('Writing style cleared successfully!');
