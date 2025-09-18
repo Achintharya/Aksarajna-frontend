@@ -47,7 +47,7 @@ const AdminDashboard = ({ isOpen, user, onClose }) => {
     }
   }, [user, checkAdminAccess]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (retryCount = 0) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
@@ -58,18 +58,35 @@ const AdminDashboard = ({ isOpen, user, onClose }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch users');
+        if (response.status === 503 && retryCount < 2) {
+          // Retry after a delay for 503 errors
+          console.log(`Server unavailable, retrying in ${(retryCount + 1) * 2} seconds...`);
+          setTimeout(() => fetchUsers(retryCount + 1), (retryCount + 1) * 2000);
+          return;
+        }
+        
+        let errorMessage = 'Failed to fetch users';
+        if (response.status === 503) {
+          errorMessage = 'Backend server is currently unavailable. Please try again later.';
+        } else if (response.status === 401) {
+          errorMessage = 'Authentication failed. Please log in again.';
+        } else if (response.status === 403) {
+          errorMessage = 'Access denied. Admin privileges required.';
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
       setUsers(data.users || []);
+      setError(''); // Clear any previous errors on success
     } catch (err) {
       console.error('Error fetching users:', err);
-      setError('Failed to fetch users');
+      setError(err.message || 'Failed to fetch users');
     }
   };
 
-  const fetchArticles = async () => {
+  const fetchArticles = async (retryCount = 0) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const response = await fetch(`${API_BASE_URL}/api/admin/articles`, {
@@ -80,14 +97,31 @@ const AdminDashboard = ({ isOpen, user, onClose }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch articles');
+        if (response.status === 503 && retryCount < 2) {
+          // Retry after a delay for 503 errors
+          console.log(`Server unavailable, retrying articles in ${(retryCount + 1) * 2} seconds...`);
+          setTimeout(() => fetchArticles(retryCount + 1), (retryCount + 1) * 2000);
+          return;
+        }
+        
+        let errorMessage = 'Failed to fetch articles';
+        if (response.status === 503) {
+          errorMessage = 'Backend server is currently unavailable. Please try again later.';
+        } else if (response.status === 401) {
+          errorMessage = 'Authentication failed. Please log in again.';
+        } else if (response.status === 403) {
+          errorMessage = 'Access denied. Admin privileges required.';
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
       setArticles(data.articles || []);
+      setError(''); // Clear any previous errors on success
     } catch (err) {
       console.error('Error fetching articles:', err);
-      setError('Failed to fetch articles');
+      setError(err.message || 'Failed to fetch articles');
     }
   };
 
@@ -225,14 +259,40 @@ const AdminDashboard = ({ isOpen, user, onClose }) => {
   }
 
   if (error) {
+    const isServerError = error.includes('Backend server is currently unavailable');
     return (
       <div className="admin-dashboard-overlay">
         <div className="admin-dashboard-modal">
           <button className="close-btn" onClick={onClose}>×</button>
           <div className="error-message">
-            <h2>Access Denied</h2>
+            <h2>{isServerError ? 'Server Unavailable' : 'Access Denied'}</h2>
             <p>{error}</p>
-            <button onClick={onClose} className="btn btn-primary">Close</button>
+            {isServerError && (
+              <div style={{ marginTop: '20px' }}>
+                <p><strong>Backend Status:</strong> <span style={{ color: '#dc3545' }}>🔴 Offline</span></p>
+                <p><small>The backend server at {API_BASE_URL} is currently unavailable. This could be due to:</small></p>
+                <ul style={{ textAlign: 'left', marginTop: '10px' }}>
+                  <li>Server maintenance or deployment</li>
+                  <li>High server load</li>
+                  <li>Network connectivity issues</li>
+                </ul>
+              </div>
+            )}
+            <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              {isServerError && (
+                <button 
+                  onClick={() => {
+                    setError('');
+                    setLoading(true);
+                    checkAdminAccess();
+                  }} 
+                  className="btn btn-secondary"
+                >
+                  🔄 Retry Connection
+                </button>
+              )}
+              <button onClick={onClose} className="btn btn-primary">Close</button>
+            </div>
           </div>
         </div>
       </div>
