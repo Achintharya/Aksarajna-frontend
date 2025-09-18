@@ -13,13 +13,7 @@ const AdminDashboard = ({ isOpen, user, onClose }) => {
   const [itemsPerPage] = useState(10);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (user) {
-      checkAdminAccess();
-    }
-  }, [user]);
-
-  const checkAdminAccess = async () => {
+  const checkAdminAccess = React.useCallback(async () => {
     try {
       // Check if user has admin role
       const { data: { session } } = await supabase.auth.getSession();
@@ -45,7 +39,13 @@ const AdminDashboard = ({ isOpen, user, onClose }) => {
       setError('Error checking admin access');
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      checkAdminAccess();
+    }
+  }, [user, checkAdminAccess]);
 
   const fetchUsers = async () => {
     try {
@@ -316,7 +316,6 @@ const AdminDashboard = ({ isOpen, user, onClose }) => {
                           <button
                             onClick={() => deleteUser(user.id)}
                             className="btn btn-danger btn-sm"
-                            disabled={user.id === user.id} // Prevent self-deletion
                           >
                             Delete
                           </button>
