@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../config/supabaseClient';
+import API_BASE_URL from '../config/api';
 import './AdminDashboard.css';
 
 const AdminDashboard = ({ isOpen, user, onClose }) => {
@@ -49,7 +50,7 @@ const AdminDashboard = ({ isOpen, user, onClose }) => {
   const fetchUsers = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const response = await fetch('/api/admin/users', {
+      const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
         headers: {
           'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json'
@@ -71,7 +72,7 @@ const AdminDashboard = ({ isOpen, user, onClose }) => {
   const fetchArticles = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const response = await fetch('/api/admin/articles', {
+      const response = await fetch(`${API_BASE_URL}/api/admin/articles`, {
         headers: {
           'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json'
@@ -97,13 +98,12 @@ const AdminDashboard = ({ isOpen, user, onClose }) => {
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const response = await fetch('/api/admin/deleteUser', {
+      const response = await fetch(`${API_BASE_URL}/api/admin/users/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId })
+        }
       });
 
       if (!response.ok) {
@@ -126,13 +126,12 @@ const AdminDashboard = ({ isOpen, user, onClose }) => {
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const response = await fetch('/api/admin/deleteArticle', {
+      const response = await fetch(`${API_BASE_URL}/api/admin/articles/${articleId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ articleId })
+        }
       });
 
       if (!response.ok) {
@@ -151,7 +150,7 @@ const AdminDashboard = ({ isOpen, user, onClose }) => {
   const viewArticle = async (article) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const response = await fetch(`/api/articles/${article.filename}`, {
+      const response = await fetch(`${API_BASE_URL}/api/articles/${article.filename}`, {
         headers: {
           'Authorization': `Bearer ${session.access_token}`
         }
