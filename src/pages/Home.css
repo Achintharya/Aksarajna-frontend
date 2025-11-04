@@ -11,14 +11,15 @@
 
 .hero-title {
   font-size: 2.5rem;
-  color: #1a1a2e;
+  color: #e6e6e6;
   margin-bottom: 1rem;
-  font-weight: 700;
+  font-weight: 500;
+  font-family: "Inter", sans-serif;
 }
 
 .hero-subtitle {
   font-size: 1.2rem;
-  color: #666;
+  color: #b3aeae;
   margin-bottom: 2rem;
 }
 
@@ -34,23 +35,49 @@
 }
 
 .search-input {
-  flex: 1;
-  padding: 1rem;
-  font-size: 1.1rem;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  transition: border-color 0.3s;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  font-size: 1rem;
+  color: #ffffff;
+  border: 2px solid #ffffff30;
+  background: #00000031;
+  border-radius: 12px;
+  outline: none;
+  transition: all 0.3s ease;
+  font-family: "Inter", sans-serif;
 }
 
 .search-input:focus {
-  outline: none;
-  border-color: #6c63ff;
+  border-color: #ffd700;
+  background: #ffffff15 !important;
+  color: #ffd700;
 }
 
 .search-input:disabled {
-  background-color: #f5f5f5;
+  background: #ffffff15;
   cursor: not-allowed;
 }
+
+.search-input::placeholder {
+  color: #ffffffbf;
+  opacity: 1;
+}
+
+.search-input::-webkit-input-placeholder {
+  color: #ffffffbf;
+  opacity: 1;
+}
+
+.search-input::-moz-placeholder {
+  color: #ffffffbf;
+  opacity: 1;
+}
+
+.search-input:-ms-input-placeholder {
+  color: #ffffffbf;
+  opacity: 1;
+}
+
 
 .search-button {
   padding: 1rem 2rem;
