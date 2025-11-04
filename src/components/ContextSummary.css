@@ -1,0 +1,110 @@
+.context-summary {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.summary-header h3 {
+  color: #1a1a2e;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.expand-toggle {
+  background: none;
+  border: none;
+  color: #6c63ff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: transform 0.2s;
+}
+
+.expand-toggle:hover {
+  transform: scale(1.2);
+}
+
+.summary-content {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.summary-text {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #333;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  user-select: text;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.summary-text::-webkit-scrollbar {
+  width: 8px;
+}
+
+.summary-text::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.summary-text::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.summary-text::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.summary-meta {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.context-id {
+  font-family: 'Monaco', 'Courier New', monospace;
+  background: #f0f0f0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.timestamp {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.timestamp::before {
+  content: '📅';
+}

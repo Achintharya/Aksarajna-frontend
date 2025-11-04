@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import Header from './components/Header';
-import ArticleGenerator from './components/ArticleGenerator';
+import Home from './pages/Home';
+import Generator from './pages/Generator';
 import MyArticles from './components/MyArticles';
 import About from './components/About';
 import Auth from './components/Auth';
@@ -80,33 +82,35 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <Header 
-        onAboutClick={() => setShowAbout(true)} 
-        onMyArticlesClick={() => setShowMyArticles(true)}
-        onAdminClick={() => setShowAdminDashboard(true)}
-        user={user}
-        onLogout={handleLogout}
-      />
-      <main className="main-container">
-        <div className="hero-section">
-          <h2 className="hero-title">Generate High-Quality Articles with AI</h2>
-          <p className="hero-subtitle">Search, summarize, and write in one step.</p>
-        </div>
-        <ArticleGenerator />
-      </main>
-      <footer className="footer">
-        <p>© 2025 Akṣarajña. Built with ❤️ by Achintharya.</p>
-      </footer>
-      <About isOpen={showAbout} onClose={() => setShowAbout(false)} />
-      <MyArticles isOpen={showMyArticles} onClose={() => setShowMyArticles(false)} />
-      <AdminDashboard 
-        isOpen={showAdminDashboard} 
-        onClose={() => setShowAdminDashboard(false)}
-        user={user}
-      />
-      <Analytics />
-    </div>
+    <Router>
+      <div className="App">
+        <Header 
+          onAboutClick={() => setShowAbout(true)} 
+          onMyArticlesClick={() => setShowMyArticles(true)}
+          onAdminClick={() => setShowAdminDashboard(true)}
+          user={user}
+          onLogout={handleLogout}
+        />
+        <main className="main-container">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/generate" element={<Generator />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </main>
+        <footer className="footer">
+          <p>© 2025 Akṣarajña. Built with ❤️ by Achintharya.</p>
+        </footer>
+        <About isOpen={showAbout} onClose={() => setShowAbout(false)} />
+        <MyArticles isOpen={showMyArticles} onClose={() => setShowMyArticles(false)} />
+        <AdminDashboard 
+          isOpen={showAdminDashboard} 
+          onClose={() => setShowAdminDashboard(false)}
+          user={user}
+        />
+        <Analytics />
+      </div>
+    </Router>
   );
 }
 
