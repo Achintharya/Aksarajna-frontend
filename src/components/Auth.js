@@ -45,7 +45,22 @@ function Auth({ onAuthSuccess }) {
         }
       }
     } catch (error) {
-      setError(error.message);
+      // Check for specific error messages
+      if (error.message?.toLowerCase().includes('legacy') && 
+          error.message?.toLowerCase().includes('disabled')) {
+        setError('Configuration Error: Your app is using outdated API keys. Please update your Supabase publishable key in the .env file to the new sb_publishable_* format. Check the console for more details.');
+        console.error('Legacy Keys Disabled Error:', {
+          message: 'The Supabase project has disabled legacy API keys.',
+          solution: 'Update REACT_APP_SUPABASE_PUBLISHABLE_KEY in .env to use the new sb_publishable_* key format',
+          dashboard: 'Get the new key from: https://supabase.com/dashboard/project/pvarvmjbazehivkiuosk/settings/api',
+          currentKeyLength: process.env.REACT_APP_SUPABASE_PUBLISHABLE_KEY?.length || 0,
+          expectedKeyLength: '200+ characters'
+        });
+      } else if (error.message?.toLowerCase().includes('invalid api key')) {
+        setError('Invalid API Key: The Supabase key appears to be incomplete or invalid. Please check your .env configuration.');
+      } else {
+        setError(error.message);
+      }
     } finally {
       setLoading(false);
     }
