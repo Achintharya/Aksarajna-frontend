@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Header.css';
 
-function Header({ onAboutClick, onMyArticlesClick, onAdminClick, user, onLogout }) {
+function Header({ onAboutClick, onMyArticlesClick, onAdminClick, user, onLogout, isGuestMode }) {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -35,20 +35,21 @@ function Header({ onAboutClick, onMyArticlesClick, onAdminClick, user, onLogout 
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
                 <div className="user-avatar">
-                  {user.email?.charAt(0).toUpperCase() || 'U'}
+                  {isGuestMode ? '👤' : (user.email?.charAt(0).toUpperCase() || 'U')}
                 </div>
-                <span className="user-email">{user.email}</span>
+                <span className="user-email">{isGuestMode ? 'Guest' : user.email}</span>
                 <span className="dropdown-arrow">▼</span>
               </button>
               
               {showUserMenu && (
                 <div className="user-dropdown">
                   <div className="user-info">
-                    <p className="user-email-full">{user.email}</p>
+                    <p className="user-email-full">{isGuestMode ? 'Guest User' : user.email}</p>
                     <p className="user-id">ID: {user.id.slice(0, 8)}...</p>
-                    {isAdmin && <p className="user-role">👑 Admin</p>}
+                    {isGuestMode && <p className="user-role">🔌 Offline Mode</p>}
+                    {!isGuestMode && isAdmin && <p className="user-role">👑 Admin</p>}
                   </div>
-                  {isAdmin && (
+                  {!isGuestMode && isAdmin && (
                     <button 
                       className="admin-button"
                       onClick={() => {

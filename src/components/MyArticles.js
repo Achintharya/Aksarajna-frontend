@@ -3,7 +3,7 @@ import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import API_BASE_URL from '../config/api';
-import { getAuthToken } from '../config/supabaseClient';
+import { getAuthToken, isGuestMode } from '../config/supabaseClient';
 import SourcesEditor from './SourcesEditor';
 import './MyArticles.css';
 
@@ -20,6 +20,10 @@ function MyArticles({ isOpen, onClose }) {
   // Helper function to get auth headers
   const getAuthHeaders = async () => {
     try {
+      // In guest mode, don't send auth headers
+      if (isGuestMode()) {
+        return {};
+      }
       const token = await getAuthToken();
       return token ? { Authorization: `Bearer ${token}` } : {};
     } catch (error) {

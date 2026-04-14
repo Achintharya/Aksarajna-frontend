@@ -8,7 +8,7 @@ import MyArticles from './components/MyArticles';
 import About from './components/About';
 import Auth from './components/Auth';
 import AdminDashboard from './components/AdminDashboard';
-import { supabase, getCurrentUser, getAuthToken } from './config/supabaseClient';
+import { supabase, getCurrentUser, getAuthToken, isGuestMode, disableGuestMode } from './config/supabaseClient';
 import { Analytics } from '@vercel/analytics/react';
 
 function App() {
@@ -23,6 +23,20 @@ function App() {
     // Check if user is already logged in
     const checkUser = async () => {
       try {
+        // Check if in guest mode first
+        if (isGuestMode()) {
+          const guestUser = {
+            id: 'guest',
+            email: 'guest@local',
+            user_metadata: {},
+            app_metadata: {}
+          };
+          setUser(guestUser);
+          setSession({ access_token: 'guest-token', user: guestUser });
+          setLoading(false);
+          return;
+        }
+
         const { data: { session } } = await supabase.auth.getSession();
         setSession(session);
         setUser(session?.user || null);
@@ -35,16 +49,18 @@ function App() {
 
     checkUser();
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user || null);
-        setLoading(false);
-      }
-    );
+    // Listen for auth changes (only if not in guest mode)
+    if (!isGuestMode()) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          setSession(session);
+          setUser(session?.user || null);
+          setLoading(false);
+        }
+      );
 
-    return () => subscription.unsubscribe();
+      return () => subscription.unsubscribe();
+    }
   }, []);
 
   const handleAuthSuccess = (user, session) => {
@@ -54,6 +70,14 @@ function App() {
 
   const handleLogout = async () => {
     try {
+      // If in guest mode, just clear the flag
+      if (isGuestMode()) {
+        disableGuestMode();
+        setUser(null);
+        setSession(null);
+        return;
+      }
+      
       await supabase.auth.signOut();
       setUser(null);
       setSession(null);
@@ -84,12 +108,18 @@ function App() {
   return (
     <Router>
       <div className="App">
+        {isGuestMode() && (
+          <div className="offline-banner">
+            🔌 Offline Mode - Data stored locally
+          </div>
+        )}
         <Header 
           onAboutClick={() => setShowAbout(true)} 
           onMyArticlesClick={() => setShowMyArticles(true)}
           onAdminClick={() => setShowAdminDashboard(true)}
           user={user}
           onLogout={handleLogout}
+          isGuestMode={isGuestMode()}
         />
         <main className="main-container">
           <Routes>

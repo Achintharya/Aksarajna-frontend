@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { supabase } from '../config/supabaseClient';
+import React, { useState, useEffect } from 'react';
+import { supabase, checkSupabaseHealth, enableGuestMode } from '../config/supabaseClient';
 import './Auth.css';
 
 function Auth({ onAuthSuccess }) {
@@ -8,6 +8,40 @@ function Auth({ onAuthSuccess }) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [supabaseAvailable, setSupabaseAvailable] = useState(true);
+  const [checkingHealth, setCheckingHealth] = useState(true);
+
+  useEffect(() => {
+    // Check Supabase health on component mount
+    const checkHealth = async () => {
+      setCheckingHealth(true);
+      const isAvailable = await checkSupabaseHealth();
+      setSupabaseAvailable(isAvailable);
+      setCheckingHealth(false);
+      
+      if (!isAvailable) {
+        setError('Supabase is currently unavailable. You can continue in Guest Mode with local storage.');
+      }
+    };
+    
+    checkHealth();
+  }, []);
+
+  const handleGuestMode = () => {
+    enableGuestMode();
+    // Create a mock guest user
+    const guestUser = {
+      id: 'guest',
+      email: 'guest@local',
+      user_metadata: {},
+      app_metadata: {}
+    };
+    const guestSession = {
+      access_token: 'guest-token',
+      user: guestUser
+    };
+    onAuthSuccess(guestUser, guestSession);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -78,6 +112,22 @@ function Auth({ onAuthSuccess }) {
           <p>Access your personalized writing assistant</p>
         </div>
 
+        {!supabaseAvailable && !checkingHealth && (
+          <div className="guest-mode-notice">
+            <p>🔌 Supabase is currently unavailable (possibly paused due to free tier limits)</p>
+            <button 
+              type="button"
+              className="guest-mode-btn"
+              onClick={handleGuestMode}
+            >
+              Continue as Guest (Local Storage)
+            </button>
+            <p className="guest-mode-info">
+              Guest mode stores data locally. You can still use all features.
+            </p>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="auth-form">
           {error && <div className="auth-error">{error}</div>}
           
@@ -109,9 +159,9 @@ function Auth({ onAuthSuccess }) {
           <button 
             type="submit" 
             className="auth-submit-btn"
-            disabled={loading}
+            disabled={loading || (!supabaseAvailable && !checkingHealth)}
           >
-            {loading ? 'Loading...' : (isLogin ? 'Login' : 'Sign Up')}
+            {checkingHealth ? 'Checking connection...' : (loading ? 'Loading...' : (isLogin ? 'Login' : 'Sign Up'))}
           </button>
         </form>
 

@@ -174,7 +174,48 @@
 }
 
 .auth-switch-btn:hover {
-  color: #ffed4e;
+  text-decoration: underline;
+}
+
+/* Guest Mode Styles */
+.guest-mode-notice {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.guest-mode-notice p:first-child {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.guest-mode-btn {
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 10px 0;
+}
+
+.guest-mode-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.guest-mode-info {
+  margin: 15px 0 0 0;
+  font-size: 13px;
+  opacity: 0.9;
 }
 
 @keyframes fadeIn {

@@ -300,3 +300,66 @@ export { initializeSupabase };
 // Migration helper to check key type
 export const getKeyType = () => 'new publishable';
 export const isNewKeySystem = () => true;
+
+// Health check for Supabase availability
+let supabaseHealthStatus = { available: true, lastCheck: 0 };
+const HEALTH_CHECK_CACHE_DURATION = 30000; // 30 seconds
+
+export const checkSupabaseHealth = async () => {
+  const now = Date.now();
+  
+  // Return cached result if recent
+  if (now - supabaseHealthStatus.lastCheck < HEALTH_CHECK_CACHE_DURATION) {
+    return supabaseHealthStatus.available;
+  }
+  
+  try {
+    // Try to initialize Supabase with a timeout
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Timeout')), 5000)
+    );
+    
+    const healthPromise = (async () => {
+      try {
+        const client = await ensureInitialized();
+        // Try a simple auth check to verify Supabase is responding
+        await client.auth.getSession();
+        return true;
+      } catch (error) {
+        console.warn('Supabase health check failed:', error);
+        return false;
+      }
+    })();
+    
+    const isAvailable = await Promise.race([healthPromise, timeoutPromise]);
+    
+    supabaseHealthStatus = {
+      available: isAvailable,
+      lastCheck: now
+    };
+    
+    return isAvailable;
+  } catch (error) {
+    console.warn('Supabase appears to be unavailable:', error);
+    supabaseHealthStatus = {
+      available: false,
+      lastCheck: now
+    };
+    return false;
+  }
+};
+
+// Check if running in guest mode
+export const isGuestMode = () => {
+  return localStorage.getItem('guestMode') === 'true';
+};
+
+// Enable guest mode
+export const enableGuestMode = () => {
+  localStorage.setItem('guestMode', 'true');
+};
+
+// Disable guest mode
+export const disableGuestMode = () => {
+  localStorage.removeItem('guestMode');
+};
